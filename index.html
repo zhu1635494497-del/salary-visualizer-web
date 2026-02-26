@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工资可视化应用 - 高级版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-header h1 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .app-body {
+            padding: 20px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .main-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stats-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+        }
+
+        .card h2 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card h2 i {
+            font-style: normal;
+            font-size: 20px;
+        }
+
+        .status-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .clock-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .income-display {
+            font-size: 32px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .extra-income {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .extra-income input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+            border: 1px solid #d0d0d0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 0 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .message-box {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #43a047;
+        }
+
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #f57c00;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .countdown-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .countdown-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .countdown-item .days {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 5px 0;
+        }
+
+        .countdown-item .label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .history-section {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .history-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .history-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-buttons {
+                flex-direction: column;
+            }
+            
+            .countdown-display {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .clockin-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .current-time {
+            font-size: 16px;
+            color: #333;
+            background: #f8f9fa;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <h1>工资可视化 & 打卡记录系统</h1>
+            <div class="control-buttons">
+                <div class="current-time" id="currentTime">--:--</div>
+                <button class="btn btn-primary" onclick="openSettings()">设置</button>
+                <button class="btn btn-danger" onclick="exportData()">导出</button>
+            </div>
+        </div>
+
+        <div class="app-body">
+            <div class="grid-container">
+                <div class="main-section">
+                    <!-- 状态区域 -->
+                    <div class="card">
+                        <h2><i>💼</i> 工作状态</h2>
+                        <div class="status-info">
+                            <div class="clock-status">
+                                <span id="clockStatus">🚪 等待打卡</span>
+                                <button class="btn btn-success" onclick="toggleClockIn()">打卡</button>
+                            </div>
+                            <div>
+                                <span id="workDays">📅 本月上班: 0天</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 收入显示区域 -->
+                    <div class="card">
+                        <h2><i>💰</i> 收入计算</h2>
+                        <div class="income-display" id="earnedAmount">当前赚取: ¥0.000</div>
+                        
+                        <div class="extra-income">
+                            <span>今日额外收入:</span>
+                            <input type="text" id="extraIncome" placeholder="¥0.00" oninput="updateExtraIncome(this.value)">
+                        </div>
+
+                        <div class="progress-container">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+
+                        <div class="time-display">
+                            <span id="startTime">08:00</span>
+                            <span id="currentWorkTime">--:--</span>
+                            <span id="endTime">17:00</span>
+                        </div>
+
+                        <div class="message-box" id="messageBox">
+                            😊 还没有开始赚钱哦~
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-warning" onclick="clearData()">清空数据</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <!-- 倒计时区域 -->
+                    <div class="card">
+                        <h2><i>⏰</i> 倒计时</h2>
+                        <div class="countdown-display">
+                            <div class="countdown-item">
+                                <span class="label">距离发薪日</span>
+                                <div class="days" id="paydayCount">--天</div>
+                                <div class="label" id="paydayModeLabel">按日期计算</div>
+                            </div>
+                            <div class="countdown-item">
+                                <span class="label">距离休息日</span>
+                                <div class="days" id="restdayCount">--天</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 配置信息 -->
+                    <div class="card">
+                        <h2><i>⚙️</i> 配置信息</h2>
+                        <div class="status-info">
+                            <span>日薪: <span id="dailySalary">¥500.00</span></span>
+                            <span>工作时间: <span id="workTime">08:00-17:00</span></span>
+                        </div>
+                        <div class="status-info">
+                            <span><span id="paydayDisplay">发薪: 每月5日</span></span>
+                            <span>休息日: <span id="restDaysDisplay">周六日</span></span>
+                        </div>
+                    </div>
+
+                    <!-- 月度统计 -->
+                    <div class="card">
+                        <h2><i>📊</i> 月度统计</h2>
+                        <div class="status-info">
+                            <span>已赚取: <span id="monthIncome">¥0.00</span></span>
+                            <span>额外收入: <span id="extraTotal">¥0.00</span></span>
+                        </div>
+                        <div class="status-info">
+                            <span>总计: <span id="totalIncome" style="color: #4CAF50; font-weight: bold;">¥0.00</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 打卡记录区域 -->
+            <div class="card history-section">
+                <h2><i>📝</i> 打卡记录</h2>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="loadAttendanceRecords()">刷新记录</button>
+                    <button class="btn btn-success" onclick="exportAttendance()">导出记录</button>
+                </div>
+                <table class="history-table" id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>打卡时间</th>
+                            <th>工作时长</th>
+                            <th>当日收入</th>
+                            <th>额外收入</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 打卡记录会动态插入到这里 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置模态框 -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h2>设置</h2>
+            
+            <div class="form-group">
+                <label>日薪金额</label>
+                <input type="number" id="dailySalaryInput" min="0" step="0.01" value="500">
+            </div>
+
+            <div class="form-group">
+                <label>上班时间</label>
+                <input type="time" id="startTimeInput" value="08:00">
+            </div>
+
+            <div class="form-group">
+                <label>下班时间</label>
+                <input type="time" id="endTimeInput" value="17:00">
+            </div>
+
+            <div class="form-group">
+                <label>发薪日模式</label>
+                <select id="paydayMode" onchange="togglePaydayMode()">
+                    <option value="date">按日期计算</option>
+                    <option value="rule">按规则计算</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="paydayDateGroup">
+                <label>发薪日(日)</label>
+                <select id="paydayInput">
+                    <option value="1">1日</option>
+                    <option value="5">5日</option>
+                    <option value="10">10日</option>
+                    <option value="15">15日</option>
+                    <option value="20">20日</option>
+                    <option value="25">25日</option>
+                    <option value="28">28日</option>
+                    <option value="30">30日</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="paydayRuleGroup" style="display: none;">
+                <label>发薪规则</label>
+                <select id="paydayRuleInput">
+                    <option value="first_day">每月第一天</option>
+                    <option value="last_day">每月最后一天</option>
+                    <option value="15th_or_last">15日或最后一天</option>
+                    <option value="last_weekday">当月最后一个工作日</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>休息日</label>
+                <div class="checkbox-group" id="restDaysGroup">
+                    <div class="checkbox-item">
+                        <input type="checkbox" value="0" id="restMon">
+                        <label for="restMon">周一</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" value="1" id="restTue">
+                        <label for="restTue">周二</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" value="2" id="restWed">
+                        <label for="restWed">周三</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" value="3" id="restThu">
+                        <label for="restThu">周四</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" value="4" id="restFri">
+                        <label for="restFri">周五</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" value="5" id="restSat" checked>
+                        <label for="restSat">周六</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" value="6" id="restSun" checked>
+                        <label for="restSun">周日</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="saveSettings()">保存</button>
+                <button class="btn btn-danger" onclick="closeSettings()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="salary_web.js"></script>
+    <script>
+    // 切换发薪日模式显示
+    function togglePaydayMode() {
+        const mode = document.getElementById('paydayMode').value;
+        const dateGroup = document.getElementById('paydayDateGroup');
+        const ruleGroup = document.getElementById('paydayRuleGroup');
+        
+        if (mode === 'date') {
+            dateGroup.style.display = 'block';
+            ruleGroup.style.display = 'none';
+        } else {
+            dateGroup.style.display = 'none';
+            ruleGroup.style.display = 'block';
+        }
+    }
+    </script>
+</body>
+</html>
