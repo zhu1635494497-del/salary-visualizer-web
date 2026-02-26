@@ -1,0 +1,10 @@
+{
+  "daily_salary": 170.0,
+  "work_start_time": "10:00",
+  "work_end_time": "19:00",
+  "payday": 31,
+  "rest_days": [
+    5,
+    6
+  ]
+}
